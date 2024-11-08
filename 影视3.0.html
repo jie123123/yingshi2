@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>影视搜索</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 0 10px;
+        }
+        .input-group {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .input-group input {
+            flex: 1;
+            padding: 10px;
+            box-sizing: border-box;
+            margin-right: 10px;
+        }
+        .input-group button {
+            padding: 10px;
+            box-sizing: border-box;
+        }
+        
+        .result-list {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+        .result-list li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            word-break: break-all; /* 确保长文本换行 */
+        }
+        .result-list li:last-child {
+            border-bottom: none;
+        }
+        .result-list .copy-btn {
+            cursor: pointer;
+            color: blue;
+            text-decoration: underline;
+            white-space: nowrap; /* 确保按钮文本不换行 */
+        }
+        /* 自定义查询按钮样式 */
+        #submitBtn {
+            background-color: #007bff; /* 蓝色背景 */
+            color: #ffffff; /* 白色文字 */
+            border: none;
+        }
+        #submitBtn:hover {
+            background-color: #0056b3; /* 鼠标悬停时的深蓝色背景 */
+        }
+        #mianze {
+            font-size: 11px;
+            color: black;
+        }
+        #dibu {
+        /* 使用Flexbox布局 */
+        display: flex;
+        color: orange;
+        flex-direction: column; /* 垂直方向排列子元素 */
+        align-items: center; /* 水平居中对齐 */
+            }
+
+         .reminder {
+            color: purple; /* 设置温馨提示文字颜色 */
+            font-size: 20px; /* 设置字体大小 */
+            text-align: left; /* 居中文本 */
+            padding: 20px; /* 添加内边距 */
+        }
+
+        .flex-image {
+        max-width: 300px;  /* 设置最大宽度 */
+        max-height: 200px; /* 设置最大高度 */
+        width: 50%;       /* 保持图片比例 */
+        height: auto;      /* 保持图片比例 */
+        }
+    </style>
+</head>
+<body>
+    <div class="reminder">
+            <p>温馨提示：<br>
+            本站搜集全网最全网盘，实时更新 若这里没有 其他地方基本无，耐心等待更新～<br>
+            所有内容均为免费分享，资源来自于网络！</p>
+    </div>
+    <div class="container">
+        <div class="input-group">
+            <input id="userInput" type="text" id="name" placeholder="输入影视名">
+            <button id="submitBtn">查询</button>
+        </div>
+        <ul class="result-list" id="resultList"></ul>
+    </div>
+
+        <div id="dibu">
+            <p></p>
+  
+          <p>
+            没搜索到？请不要带：第几部第几期，等无关词。<br>
+            若空白就是卡住了！！刷新后重新搜索<br>
+            更多信息请加QQ群号:126725579&nbsp;&nbsp;
+          </p>
+            <img class="flex-image" id="img" src="123.png" alt="微信扫一扫加入">
+  
+            <p id="mianze">
+                  免责声明：本站所有数据均来源于互联网公开采集链接，仅供交流学习，请于24小时内删除，请支持正版
+                <br>                 
+            </p>
+        </div>
+
+     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#submitBtn').click(function() {
+                const userInput = $('#userInput').val();
+                const token = 'i69';
+
+                // 清空输入框
+                $('#userInput').val('');
+
+                // 检查输入框是否有值
+                if (!userInput) {
+                    alert('请输入影视名');
+                    return;
+                }
+
+                // 假设有多个接口URL
+                const urls = [
+                'http://ee.rtshear.com/v/api/getJuzi',  // 替换为实际API地址
+                'http://ee.rtshear.com/v/api/sortWeb',
+                'http://ee.rtshear.com/v/api/getDyfx',
+                'http://uukk6.cn/v/api/getTTZJB'
+                ];
+
+                // 清空结果列表
+                $('#resultList').empty();
+
+
+                urls.forEach(url => {
+                    $.ajax({
+                        url: url,
+                        method: 'POST',
+                        data: {
+                            name: userInput,
+                            token: token
+                        },
+                        success: function(response) {
+                            if (response.list && Array.isArray(response.list)) {
+                                response.list.forEach(item => {
+                                    const listItem = $('<li class="list-group-item d-flex justify-content-between align-items-center"></li>');
+                                    listItem.html(`
+                                        <div>
+                                            <strong></strong> ${item.question}<br>
+                                            <strong>➡️</strong> ${item.answer}
+                                        </div>
+                                        <button class="btn btn-secondary btn-sm ms-3">复制</button>
+                                    `);
+                                   
+
+                                    const copyButton = listItem.find('button');
+                                    copyButton.click(function() {
+                                        navigator.clipboard.writeText(`Question: ${item.question}, Answer: ${item.answer}`);
+                                        alert('内容已复制到剪贴板');
+                                    });
+
+                                    $('#resultList').append(listItem);
+                                });
+                            }
+                        },
+                        error: function(error) {
+                            console.error('接口调用失败:', error);
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>
